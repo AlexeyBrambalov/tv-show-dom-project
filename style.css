@@ -1,3 +1,98 @@
-#root {
-  color: red;
+*{
+  box-sizing: border-box;
+  font-family: monospace;
+}
+
+p{
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-size: 0.7em;
+  text-indent: 20px
+}
+
+h1{
+  font-family: 'Courier New', Courier, monospace;
+}
+
+#root{
+  display: grid;
+  grid-gap: 20px;
+  justify-content: center;
+
+}
+
+.card{
+    width: 280px;
+    height: 350px;
+    border-radius: 5px;
+    border: 1px solid black;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.cardSummary{
+  margin-top: 0;
+}
+
+.cardTitle{
+  text-align: center;
+  width: 100%;
+  margin-bottom: 5px;
+}
+
+
+nav{
+  width: 80vw;
+  height: 50px;
+  background-color: brown;
+  margin: 5vh 9vw;
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  
+}
+
+input{
+  width: 20vw;
+  height: 20px;
+}
+
+#select{
+  width: 30vw;
+  height: 20px;
+
+}
+
+
+
+
+
+@media only screen and (min-width: 300px) {
+  #root {   
+    grid-template-columns: auto;    
+  }
+}
+
+@media only screen and (min-width: 600px) {
+  #root {   
+    grid-template-columns: auto auto;    
+  }
+}
+@media only screen and (min-width: 900px) {
+  #root {    
+    grid-template-columns: auto auto auto;  
+  }  
+}
+@media only screen and (min-width: 1200px) {
+  #root {    
+    grid-template-columns: auto auto auto auto;
+  }
+}
+@media only screen and (min-width: 1450px) {
+  #root {    
+    grid-template-columns: auto auto auto auto auto;    
+  }
 }
