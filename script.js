@@ -1,48 +1,15 @@
 //You can edit ALL of the code here
 function setup() {
-  const allEpisodes = getAllEpisodes();
+  // const allEpisodes = getAllEpisodes();
   const rootElem = document.getElementById("root");
   const navBar = document.getElementById("navbar")
-
-  
   const input = document.createElement("input")
   navBar.appendChild(input)
-
   const pCount = document.createElement("p")
   navBar.appendChild(pCount)
-  pCount.innerText=`${allEpisodes.length}/73 episodes`
-
   const select = document.getElementById("select")
  
- 
 
-  let episodeTitles = allEpisodes.map(episode => episode = `${episode.name} - ${titleCodeGenerator(episode)}` )
-
-  for (let i=0 ; i < episodeTitles.length; i++) {
-    option = document.createElement('option');
-    option.setAttribute('value', episodeTitles[i]);
-    option.appendChild(document.createTextNode(episodeTitles[i]));
-    select.appendChild(option);
-  }
-
-
-
- console.log(select.value);
- 
-select.addEventListener('change', () => {
-  allEpisodes.filter(episode => `${episode.name} - ${titleCodeGenerator(episode)}` == select.value ).forEach(episode => {
-        
-    rootElem.innerHTML = `
-    <div class="card">
-      <span class="cardTitle">${episode.name} - ${titleCodeGenerator(episode)}</span>
-      <img class="cardImg" src=${episode.image.medium}>
-      <div class="cardSummary"><br>${episode.summary}</div>
-    </div>`    
-  });
-
-  pCount.innerText =`1/73 episodes`
-  
-})
   
   function titleCodeGenerator(episode){
     let seasonCode = (episode.season < 10) ? '0' + episode.season : episode.season;
@@ -50,34 +17,92 @@ select.addEventListener('change', () => {
     return `S${seasonCode}E${episodeCode}`;
   }
 
- 
+function addEpisodes(episode){
 
-  input.addEventListener("change", () => {
-    rootElem.innerHTML = ''
-
-    allEpisodes.filter(episode => episode.name.toLowerCase().includes(input.value) ||  episode.summary.toLowerCase().includes(input.value)).forEach(episode => {
-      
-        rootElem.innerHTML += `
-        <div class="card">
-          <span class="cardTitle">${episode.name} - ${titleCodeGenerator(episode)}</span>
-          <img class="cardImg" src=${episode.image.medium}>
-          <div class="cardSummary"><br>${episode.summary}</div>
-        </div>`    
-      });
-      pCount.innerText = `${allEpisodes.filter(episode => episode.name.toLowerCase().includes(input.value) ||  episode.summary.toLowerCase().includes(input.value)).length}/73 episodes`
-      
-  })
-
-
-
-  allEpisodes.forEach(episode => { 
-    rootElem.innerHTML += `
+  rootElem.innerHTML += `
     <div class="card">
       <span class="cardTitle">${episode.name} - ${titleCodeGenerator(episode)}</span>
-      <img class="cardImg" src=${episode.image.medium}>
+      <img class="cardImg" src=${episode.image !== null ? episode.image.medium : "https://www.facultatieve-technologies.com/wp-content/uploads/No-image-200px.png"}>
       <div class="cardSummary"><br>${episode.summary}</div>
-    </div>`    
-  });
+    </div>`
+
+}
+
+
+async function getUserAsync() 
+{
+  let response = await fetch("http://api.tvmaze.com/shows");
+  let data = await response.json()
+  console.log(data);
+  
+  return data;
+}
+
+getUserAsync()
+  .then(data => data.sort(function(a, b){
+    if(a.name < b.name) { return -1; }
+    if(a.name > b.name) { return 1; }
+    return 0;
+}).map(item => {
+    option = document.createElement('option');
+    option.setAttribute('value', item.id);
+    option.appendChild(document.createTextNode(item.name));
+    select.appendChild(option)
+  })); 
+ 
+
+  
+select.addEventListener('change', () => {
+  let i = select.value
+  rootElem.innerHTML =""
+async function load1() {
+  let url = `https://api.tvmaze.com/shows/${i}/episodes`;
+  let obj = await (await fetch(url)).json();
+  obj.forEach(addEpisodes)
+  pCount.innerText =`${obj.length}/${obj.length} episodes`
+  }
+load1();
+
+})
+
+
+
+input.addEventListener("change", () => {
+  let i = select.value
+
+
+  
+
+  rootElem.innerHTML = ''
+  async function load() {
+    let url = `https://api.tvmaze.com/shows/${i}/episodes`;
+    let obj = await (await fetch(url)).json();
+    Object.values(obj).filter(episode => episode.name.toLowerCase().includes(input.value) ||  episode.summary.toLowerCase().includes(input.value)).forEach(addEpisodes)
+    pCount.innerText =`${obj.length}/${obj.length} episodes`
+  }
+  
+  load();
+  
+})
+
+
+
+// default movie
+
+let i = 1
+
+async function load() {
+  let url = `https://api.tvmaze.com/shows/${i}/episodes`;
+  let obj = await (await fetch(url)).json();
+  obj.forEach(addEpisodes)
+  pCount.innerText =`${obj.length}/${obj.length} episodes`
+}
+
+load();
+
+
+
+
 }
 
 

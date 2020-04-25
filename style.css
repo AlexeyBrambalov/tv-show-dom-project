@@ -9,8 +9,9 @@ p{
   text-indent: 20px
 }
 
-h1{
-  font-family: 'Courier New', Courier, monospace;
+a{
+  text-decoration: none;
+  color: black;
 }
 
 #root{
@@ -74,12 +75,15 @@ input{
   #root {   
     grid-template-columns: auto;    
   }
+
+
 }
 
 @media only screen and (min-width: 600px) {
   #root {   
-    grid-template-columns: auto auto;    
+    grid-template-columns: auto 
   }
+
 }
 @media only screen and (min-width: 900px) {
   #root {    
@@ -95,4 +99,16 @@ input{
   #root {    
     grid-template-columns: auto auto auto auto auto;    
   }
+}
+
+
+@media only screen and (max-width: 500px) {
+  nav {   
+    flex-direction: column;
+    height: 15vh;
+  }
+  select{
+    display: none;
+  }
+
 }
