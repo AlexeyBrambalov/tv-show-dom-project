@@ -89,3 +89,7 @@ input{
 .cardTitle{
   font-size: 20px;
 }
+
+span {
+  background-color: yellow;
+}
