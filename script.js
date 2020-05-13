@@ -19,34 +19,30 @@ async function  setup() {
 
   function addEpisodes(episode) {
 
-
-
     let divCard = document.createElement('div')
     divCard.classList.add('cardEp')
     let div = document.createElement('div')
-    div.classList.add('cardTitle')
+    div.classList.add('cardTitleEp')
 
     episode.season ? div.innerText = `${episode.name} - ${titleCodeGenerator(episode)}` : div.innerText = `${episode.name}`
 
     let imgCard = document.createElement('img')
-    imgCard.classList.add("cardImg")
+    imgCard.classList.add("cardImgEp")
 
     imgCard.src=`${episode.image !== null ? episode.image.medium : "https://www.facultatieve-technologies.com/wp-content/uploads/No-image-200px.png"}`
 
     let divCardSummery = document.createElement('div')
-    divCardSummery.classList.add('cardSummary')
+    divCardSummery.classList.add('cardSummaryEp')
     divCardSummery.innerText=`${episode.summary.replace(/<\/?[^>]+(>|$)/g, "")}`
 
     let runtime = document.createElement('div')
     runtime.classList.add('runtime')
-    runtime.innerText = "runtime: " + episode.runtime
+    runtime.innerText = "runtime: " + episode.runtime + " min"
         
     divCard.appendChild(div)
     divCard.appendChild(imgCard)
     divCard.appendChild(divCardSummery)
     divCard.appendChild(runtime)
-
-
 
     rootElem.appendChild(divCard)
 
@@ -57,9 +53,6 @@ async function  setup() {
 function addShows(episode){
 
   // SAFER WAY TO PARSE DATA
-
-    let divWrap = document.createElement('div')
-    divWrap.classList.add('showWrap')
 
 
     let divCard = document.createElement('div')
@@ -138,12 +131,10 @@ function addShows(episode){
     divCard.appendChild(rating)
     divCard.appendChild(runtime)
 
-    divWrap.appendChild(divCard)
 
 
 
-
-    rootElem.appendChild(divWrap)
+    rootElem.appendChild(divCard)
 }
 
 
