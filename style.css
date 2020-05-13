@@ -15,24 +15,53 @@ a{
 }
 
 #root{
-  display: grid;
-  grid-gap: 20px;
-  justify-content: center;
 
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+flex-wrap: wrap;
+width: 100%;
 }
+
+.divWrap{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
 
 .card{
-    width: 80vw;
-    height: 450px;
-    border-radius: 5px;
-    border: 1px solid black;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
+  width: 80%;
+  min-width: 600px;
+  height: 450px;
+  border-radius: 5px;
+  border: 1px solid black;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  margin: 0 10%;
+
 }
 
+.cardEp{
+  width: 25%;
+  min-width: 300px;
+  height: 350px;
+  border-radius: 5px;
+  border: 1px solid black;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  margin: 20px;
+
+}
 .cardSummary{
   margin-top: 10px;
   text-indent: 20px;

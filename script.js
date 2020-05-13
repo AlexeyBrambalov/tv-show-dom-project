@@ -16,15 +16,59 @@ async function  setup() {
     return `S${seasonCode}E${episodeCode}`;
   }
 
-function addEpisodes(episode){
+
+  function addEpisodes(episode) {
+
+
+
+    let divCard = document.createElement('div')
+    divCard.classList.add('cardEp')
+    let div = document.createElement('div')
+    div.classList.add('cardTitle')
+
+    episode.season ? div.innerText = `${episode.name} - ${titleCodeGenerator(episode)}` : div.innerText = `${episode.name}`
+
+    let imgCard = document.createElement('img')
+    imgCard.classList.add("cardImg")
+
+    imgCard.src=`${episode.image !== null ? episode.image.medium : "https://www.facultatieve-technologies.com/wp-content/uploads/No-image-200px.png"}`
+
+    let divCardSummery = document.createElement('div')
+    divCardSummery.classList.add('cardSummary')
+    divCardSummery.innerText=`${episode.summary.replace(/<\/?[^>]+(>|$)/g, "")}`
+
+    let runtime = document.createElement('div')
+    runtime.classList.add('runtime')
+    runtime.innerText = "runtime: " + episode.runtime
+        
+    divCard.appendChild(div)
+    divCard.appendChild(imgCard)
+    divCard.appendChild(divCardSummery)
+    divCard.appendChild(runtime)
+
+
+
+    rootElem.appendChild(divCard)
+
+    pCount.innerText =`${arr.length}/${arr.length} episodes`
+  }
+
+
+function addShows(episode){
 
   // SAFER WAY TO PARSE DATA
+
+    let divWrap = document.createElement('div')
+    divWrap.classList.add('showWrap')
+
 
     let divCard = document.createElement('div')
     divCard.classList.add('card')
     let div = document.createElement('div')
     div.classList.add('cardTitle')
+    if(episode.season){
     div.innerText = `${episode.name} - ${titleCodeGenerator(episode)}`
+    } else {div.innerText = `${episode.name}`}
     let imgCard = document.createElement('img')
     imgCard.classList.add("cardImg")
     imgCard.src=`${episode.image !== null ? episode.image.medium : "https://www.facultatieve-technologies.com/wp-content/uploads/No-image-200px.png"}`
@@ -50,53 +94,40 @@ function addEpisodes(episode){
     let rating = document.createElement('div')
     rating.classList.add('rating')
     rating.innerText = "rating: " + episode.rating.average
+
+
+    async function loadEpisodes(id) {
+      let url = `https://api.tvmaze.com/shows/${id}/episodes`;
+      let obj = await (await fetch(url)).json();
+      arr = obj
+      
+      arr.forEach(addEpisodes)
+      
+      pCount.innerText =`${obj.length}/${obj.length} episodes`
+    }
     
+    //Click on the title
 
     div.addEventListener('click', ()=> {
 
-      let i = episode.id
+      let id = episode.id
       rootElem.innerHTML =""
-      async function load1() {
-        let url = `https://api.tvmaze.com/shows/${i}/episodes`;
-        let obj = await (await fetch(url)).json();
-        arr = obj
-        
-        arr.forEach(episode => {
-          let divCard = document.createElement('div')
-            divCard.classList.add('card')
-            let div = document.createElement('div')
-            div.classList.add('cardTitle')
-            div.innerText = `${episode.name} - ${titleCodeGenerator(episode)}`
-            let imgCard = document.createElement('img')
-            imgCard.classList.add("cardImg")
-            imgCard.src=`${episode.image !== null ? episode.image.medium : "https://www.facultatieve-technologies.com/wp-content/uploads/No-image-200px.png"}`
-            let divCardSummery = document.createElement('div')
-            divCardSummery.classList.add('cardSummary')
-            divCardSummery.innerText=`${episode.summary.replace(/<\/?[^>]+(>|$)/g, "")}`
-            let runtime = document.createElement('div')
-            runtime.classList.add('runtime')
-            runtime.innerText = "runtime: " + episode.runtime
-          
-            
-                
-            divCard.appendChild(div)
-            divCard.appendChild(imgCard)
-            divCard.appendChild(divCardSummery)
-            divCard.appendChild(runtime)
-            rootElem.appendChild(divCard)
 
-            pCount.innerText =`${obj.length}/${obj.length} episodes`
-
-        })
-        
-        pCount.innerText =`${obj.length}/${obj.length} episodes`
-      }
-
-      load1();
+      loadEpisodes(id);
 
     })
 
+    
+    //Select field changing options
+      
+    select.addEventListener('change', () => {
 
+      let id = select.value
+      rootElem.innerHTML =""
+
+      loadEpisodes(id);
+
+    })
     
     divCard.appendChild(div)
     mainDiv.appendChild(imgCard)
@@ -106,152 +137,93 @@ function addEpisodes(episode){
     divCard.appendChild(status)
     divCard.appendChild(rating)
     divCard.appendChild(runtime)
-    rootElem.appendChild(divCard)
+
+    divWrap.appendChild(divCard)
+
+
+
+
+    rootElem.appendChild(divWrap)
 }
 
-//   select values
+
+//   List of select values
 async function getShowsTitles() 
 {
   let response = await fetch("http://api.tvmaze.com/shows");
   let data = await response.json()
   return data;
 }
+
 getShowsTitles()
-  .then(data => data.sort(function(a, b){
-    if(a.name < b.name) { return -1; }
-    if(a.name > b.name) { return 1; }
-    return 0;
-}).map(item => {
-    option = document.createElement('option');
-    option.setAttribute('value', item.id);
-    option.appendChild(document.createTextNode(item.name));
-    select.appendChild(option)
-  })); 
+  .then(data => data.sort(SortByName)
+  .map(fillSelectList)); 
 
 
-//Select field changing options
-  
-select.addEventListener('change', () => {
+function SortByName(a, b){
+  if(a.name < b.name) { return -1; }
+  if(a.name > b.name) { return 1; }
+  return 0;
+}
 
-  let i = select.value
-  rootElem.innerHTML =""
-
-  async function loadSelected() {
-
-    let url = `https://api.tvmaze.com/shows/${i}/episodes`;
-    let obj = await (await fetch(url)).json();
-
-    obj.forEach(episode => {
-      let divCard = document.createElement('div')
-        divCard.classList.add('card')
-        let div = document.createElement('div')
-        div.classList.add('cardTitle')
-        div.innerText = `${episode.name} - ${titleCodeGenerator(episode)}`
-        let imgCard = document.createElement('img')
-        imgCard.classList.add("cardImg")
-        imgCard.src=`${episode.image !== null ? episode.image.medium : "https://www.facultatieve-technologies.com/wp-content/uploads/No-image-200px.png"}`
-        let divCardSummery = document.createElement('div')
-        divCardSummery.classList.add('cardSummary')
-        divCardSummery.innerText=`${episode.summary.replace(/<\/?[^>]+(>|$)/g, "")}`
-        let runtime = document.createElement('div')
-        runtime.classList.add('runtime')
-        runtime.innerText = "runtime: " + episode.runtime
-            
-        divCard.appendChild(div)
-        divCard.appendChild(imgCard)
-        divCard.appendChild(divCardSummery)
-        divCard.appendChild(runtime)
-        rootElem.appendChild(divCard)
-        pCount.innerText =`${obj.length}/${obj.length} episodes`
-
-  })
-  arr = obj
-  
-  pCount.innerText =`${obj.length}/${obj.length} episodes`
-  }
-loadSelected();
-
-})
-
+function fillSelectList (item){
+  option = document.createElement('option');
+  option.setAttribute('value', item.id);
+  option.appendChild(document.createTextNode(item.name));
+  select.appendChild(option)
+}
 
 // SEARCH FIELD 
 
 input.addEventListener("change", () => {
   rootElem.innerHTML = ''
 
-
   arr.filter(episode => episode.name.toLowerCase().includes(input.value) ||  episode.summary.toLowerCase().includes(input.value)).forEach(episode => {
 
     if (!episode.genres){
-    let divCard = document.createElement('div')
-      divCard.classList.add('card')
-      let div = document.createElement('div')
-      div.classList.add('cardTitle')
-      div.innerText = `${episode.name} - ${titleCodeGenerator(episode)}`
-      let imgCard = document.createElement('img')
-      imgCard.classList.add("cardImg")
-      imgCard.src=`${episode.image !== null ? episode.image.medium : "https://www.facultatieve-technologies.com/wp-content/uploads/No-image-200px.png"}`
-      let divCardSummery = document.createElement('div')
-      divCardSummery.classList.add('cardSummary')
-      divCardSummery.innerText=`${episode.summary.replace(/<\/?[^>]+(>|$)/g, "")}`
-      let runtime = document.createElement('div')
-      runtime.classList.add('runtime')
-      runtime.innerText = "runtime: " + episode.runtime
-          
-      divCard.appendChild(div)
-      divCard.appendChild(imgCard)
-      divCard.appendChild(divCardSummery)
-      divCard.appendChild(runtime)
-      rootElem.appendChild(divCard)
-      pCount.innerText =`${arr.length}/${arr.length} episodes`
-    } else {
       addEpisodes(episode)
+    } else {
+      addShows(episode)
     }
 
   })
 
- document.querySelectorAll('.cardSummary').forEach( episode => {
-  let index = episode.innerHTML.toLowerCase().indexOf(input.value);
+  document.querySelectorAll('.cardSummary').forEach(highlight)
+
+  document.querySelectorAll('.cardTitle').forEach(highlight)
+  
+  pCount.innerText =`${arr.filter(search).length}/${arr.filter(search).length} episodes`
+
+  function search(episode){episode.name.toLowerCase().includes(input.value) ||  episode.summary.toLowerCase().includes(input.value)}
+  
+})
+
+function highlight(episode){
+  let html = episode.innerHTML 
+  let index = html.toLowerCase().indexOf(input.value);
   let text = input.value
-    if(index >= 0 ){
+    if(index >= 0){
       let re = new RegExp(text,"gi");
       episode.innerHTML = episode.innerHTML.replace(re, function(match) {
         return `<span>${match}</span>`
     });
-    } 
-  })
-
- document.querySelectorAll('.cardTitle').forEach( episode => {
-  let html = episode.innerHTML 
-  let index = html.toLowerCase().indexOf(input.value);
-  let text = input.value
-  if(index >= 0){
-    let re = new RegExp(text,"gi");
-    episode.innerHTML = episode.innerHTML.replace(re, function(match) {
-      return `<span>${match}</span>`
-  });
-
-    
   }
- })
-  
-  pCount.innerText =`${arr.filter(episode => episode.name.toLowerCase().includes(input.value) ||  episode.summary.toLowerCase().includes(input.value)).length}/${arr.filter(episode => episode.name.toLowerCase().includes(input.value) ||  episode.summary.toLowerCase().includes(input.value)).length} episodes`
-  
-})
+ }
+
 
 
 
 // default movie
 let arr = []
 
-async function load() {
+async function loadShowlist() {
   let url = `http://api.tvmaze.com/shows`;
   let obj = await (await fetch(url)).json();
   arr = Array.from(obj) 
-  arr.forEach(addEpisodes)
+  arr.forEach(addShows)
   pCount.innerText =`${obj.length}/${obj.length} episodes`
 }
- await load();
+ await loadShowlist();
 
 }
 
@@ -262,14 +234,3 @@ async function load() {
 
 window.onload = setup;
 
-
-
-
-  // async function load() {
-  //   let url = `https://api.tvmaze.com/shows/${i}/episodes`;
-  //   let obj = await (await fetch(url)).json();
-  //   Object.values(obj).filter(episode => episode.name.toLowerCase().includes(input.value) ||  episode.summary.toLowerCase().includes(input.value)).forEach(addEpisodes)
-  //   pCount.innerText =`${obj.length}/${obj.length} episodes`
-  // }
-  
-  // load();
