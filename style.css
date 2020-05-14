@@ -24,19 +24,13 @@ flex-wrap: wrap;
 width: 100%;
 }
 
-.divWrap{
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-}
+
+
 
 
 .card{
   width: 80%;
   min-width: 400px;
-
   border-radius: 5px;
   border: 1px solid black;
   padding: 10px;
@@ -45,8 +39,6 @@ width: 100%;
   align-items: flex-start;
   justify-content: flex-start;
   margin: 20px 10%;
-
-
 }
 
 .cardEp{
@@ -170,6 +162,5 @@ nav{
 
 input{
   width: 50vw;
-
 }
 }

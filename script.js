@@ -33,7 +33,7 @@ async function  setup() {
 
     let divCardSummery = document.createElement('div')
     divCardSummery.classList.add('cardSummaryEp')
-    divCardSummery.innerText=`${episode.summary.replace(/<\/?[^>]+(>|$)/g, "")}`
+    episode.summary ? divCardSummery.innerText =`${episode.summary.replace(/<\/?[^>]+(>|$)/g, "")}` : divCardSummery.innerText= "No Summary" 
 
     let runtime = document.createElement('div')
     runtime.classList.add('runtime')
@@ -49,78 +49,86 @@ async function  setup() {
     pCount.innerText =`${arr.length}/${arr.length} episodes`
   }
 
+  async function loadEpisodes(id) {
+    let url = `https://api.tvmaze.com/shows/${id}/episodes`;
+    let obj = await (await fetch(url)).json();
+    episodes = obj
+    
+    episodes.forEach(addEpisodes)
+    
+    pCount.innerText =`${episodes.length}/${episodes.length} episodes`
+  }
+
+
+
+
+  
+  //Select field changing options
+    
+  select.addEventListener('change', () => {
+
+    if(select.value == "allepisodes"){
+      rootElem.innerHTML =""
+      arr.forEach(addShows)
+      pCount.innerText =`${arr.length}/${arr.length} episodes`
+    } else {
+
+    let id = select.value
+    rootElem.innerHTML =""
+
+    loadEpisodes(id);
+    }
+
+  })
+
 
 function addShows(episode){
 
-  // SAFER WAY TO PARSE DATA
+  let divCard = document.createElement('div')
+  divCard.classList.add('card')
+  let div = document.createElement('div')
+  div.classList.add('cardTitle')
+  if(episode.season){
+  div.innerText = `${episode.name} - ${titleCodeGenerator(episode)}`
+  } else {div.innerText = `${episode.name}`}
+  let imgCard = document.createElement('img')
+  imgCard.classList.add("cardImg")
+  imgCard.src=`${episode.image !== null ? episode.image.medium : "https://www.facultatieve-technologies.com/wp-content/uploads/No-image-200px.png"}`
+  let divCardSummery = document.createElement('div')
+  divCardSummery.classList.add('cardSummary')
+  divCardSummery.innerText=`${episode.summary.replace(/<\/?[^>]+(>|$)/g, "")}`
 
+  let mainDiv = document.createElement('div')
+  mainDiv.classList.add('mainDiv')
 
-    let divCard = document.createElement('div')
-    divCard.classList.add('card')
-    let div = document.createElement('div')
-    div.classList.add('cardTitle')
-    if(episode.season){
-    div.innerText = `${episode.name} - ${titleCodeGenerator(episode)}`
-    } else {div.innerText = `${episode.name}`}
-    let imgCard = document.createElement('img')
-    imgCard.classList.add("cardImg")
-    imgCard.src=`${episode.image !== null ? episode.image.medium : "https://www.facultatieve-technologies.com/wp-content/uploads/No-image-200px.png"}`
-    let divCardSummery = document.createElement('div')
-    divCardSummery.classList.add('cardSummary')
-    divCardSummery.innerText=`${episode.summary.replace(/<\/?[^>]+(>|$)/g, "")}`
+  let runtime = document.createElement('div')
+  runtime.classList.add('runtime')
+  runtime.innerText = "runtime: " + episode.runtime
 
-    let mainDiv = document.createElement('div')
-    mainDiv.classList.add('mainDiv')
+  let genres = document.createElement('div')
+  genres.classList.add('genres')
+  genres.innerText = "Genres: " + episode.genres.join('; ')
 
-    let runtime = document.createElement('div')
-    runtime.classList.add('runtime')
-    runtime.innerText = "runtime: " + episode.runtime
+  let status = document.createElement('div')
+  status.classList.add('status')
+  status.innerText = "status: " + episode.status
 
-    let genres = document.createElement('div')
-    genres.classList.add('genres')
-    genres.innerText = "Genres: " + episode.genres.join('; ')
+  let rating = document.createElement('div')
+  rating.classList.add('rating')
+  rating.innerText = "rating: " + episode.rating.average
 
-    let status = document.createElement('div')
-    status.classList.add('status')
-    status.innerText = "status: " + episode.status
+  div.addEventListener('click', ()=> {
 
-    let rating = document.createElement('div')
-    rating.classList.add('rating')
-    rating.innerText = "rating: " + episode.rating.average
+    let id = episode.id
+    rootElem.innerHTML =""
 
+    loadEpisodes(id);
+    select.value = id
 
-    async function loadEpisodes(id) {
-      let url = `https://api.tvmaze.com/shows/${id}/episodes`;
-      let obj = await (await fetch(url)).json();
-      arr = obj
-      
-      arr.forEach(addEpisodes)
-      
-      pCount.innerText =`${obj.length}/${obj.length} episodes`
-    }
-    
-    //Click on the title
+  })
 
-    div.addEventListener('click', ()=> {
-
-      let id = episode.id
-      rootElem.innerHTML =""
-
-      loadEpisodes(id);
-
-    })
 
     
-    //Select field changing options
-      
-    select.addEventListener('change', () => {
-
-      let id = select.value
-      rootElem.innerHTML =""
-
-      loadEpisodes(id);
-
-    })
     
     divCard.appendChild(div)
     mainDiv.appendChild(imgCard)
@@ -138,31 +146,8 @@ function addShows(episode){
 }
 
 
-//   List of select values
-async function getShowsTitles() 
-{
-  let response = await fetch("http://api.tvmaze.com/shows");
-  let data = await response.json()
-  return data;
-}
-
-getShowsTitles()
-  .then(data => data.sort(SortByName)
-  .map(fillSelectList)); 
 
 
-function SortByName(a, b){
-  if(a.name < b.name) { return -1; }
-  if(a.name > b.name) { return 1; }
-  return 0;
-}
-
-function fillSelectList (item){
-  option = document.createElement('option');
-  option.setAttribute('value', item.id);
-  option.appendChild(document.createTextNode(item.name));
-  select.appendChild(option)
-}
 
 // SEARCH FIELD 
 
@@ -212,9 +197,33 @@ async function loadShowlist() {
   let obj = await (await fetch(url)).json();
   arr = Array.from(obj) 
   arr.forEach(addShows)
-  pCount.innerText =`${obj.length}/${obj.length} episodes`
+  pCount.innerText =`${arr.length}/${arr.length} episodes`
 }
  await loadShowlist();
+
+ //Select list
+
+
+ let newArr = arr
+ let sortedArr = [{id: "allepisodes", name: "All episodes"}, ...newArr.sort(SortByName)]
+ 
+ sortedArr.map(fillSelectList)
+
+
+
+function SortByName(a, b){
+  if(a.name < b.name) { return -1; }
+  if(a.name > b.name) { return 1; }
+  return 0;
+}
+
+function fillSelectList (item){
+  option = document.createElement('option');
+  option.setAttribute('value', item.id);
+  option.appendChild(document.createTextNode(item.name));
+  select.appendChild(option)
+}
+
 
 }
 
